@@ -152,28 +152,28 @@ const Basic = () => {
             toast.error('Please enter valid price or quantit');
         } else {
 
-            // console.log('herere', inputs, images, productSlug, productName, productListings);
-            // axiosInstance.post('/admin/addproduct', { inputs, images, productSlug, productName, selectedCategory, mainCategory, productListings }).then((res) => {
-            //     toast.success(res.data.message);
-            //     closePopup();
-            // });
-
-
             console.log('herere', inputs, images, productSlug, productName, productListings);
-            axiosInstance
-                .post('/admin/addproduct', { inputs, images, productSlug, productName, selectedCategory, mainCategory, productListings })
-                .then((res) => {
-                    if (res.data.success) {
-                        toast.success(res.data.message);
-                        closePopup();
-                    } else {
-                        toast.error('Failed to add product. Please try again.');
-                    }
-                })
-                .catch((error) => {
-                    console.error('Error adding product:', error);
-                    toast.error('An error occurred while adding the product.');
-                });
+            axiosInstance.post('/admin/addproduct', { inputs, images, productSlug, productName, selectedCategory, mainCategory, productListings }).then((res) => {
+                toast.success(res.data.message);
+                closePopup();
+            });
+
+
+            // console.log('herere', inputs, images, productSlug, productName, productListings);
+            // axiosInstance
+            //     .post('/admin/addproduct', { inputs, images, productSlug, productName, selectedCategory, mainCategory, productListings })
+            //     .then((res) => {
+            //         if (res.data.success) {
+            //             toast.success(res.data.message);
+            //             closePopup();
+            //         } else {
+            //             toast.error('Failed to add product. Please try again.');
+            //         }
+            //     })
+            //     .catch((error) => {
+            //         console.error('Error adding product:', error);
+            //         toast.error('An error occurred while adding the product.');
+            //     });
         }
     };
 
