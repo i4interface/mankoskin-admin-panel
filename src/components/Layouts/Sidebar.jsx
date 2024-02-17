@@ -126,6 +126,9 @@ const Sidebar = () => {
                                             <NavLink to="/apps/invoice/add">{t('Attributes')}</NavLink>
                                         </li>
                                         <li>
+                                            <NavLink to="/apps/invoice/productreviews">{t('Product Reviews')}</NavLink>
+                                        </li>
+                                        <li>
                                             <NavLink to="">{t('Tag')}</NavLink>
                                         </li>
                                         <li>

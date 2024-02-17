@@ -9,6 +9,7 @@ const List = lazy(() => import("../pages/Apps/Invoice/List"))
 const Preview = lazy(() => import("../pages/Apps/Invoice/Preview"))
 const Add = lazy(() => import("../pages/Apps/Invoice/Add"))
 const Edit = lazy(() => import("../pages/Apps/Invoice/Edit"))
+const ProductReviews = lazy(()=>import("../pages/Apps/Invoice/ProductReviews"))
 const Profile = lazy(() => import("../pages/Users/Profile"))
 const AccountSetting = lazy(() => import("../pages/Users/AccountSetting"))
 const LoginBoxed = lazy(() => import("../pages/Authentication/LoginBoxed"))
@@ -62,6 +63,10 @@ const routes = [
   {
     path: "/apps/invoice/edit",
     element: <Edit />
+  },
+  {
+    path:"/apps/invoice/productreviews",
+    element:<ProductReviews/>
   },
 
   // Users page
