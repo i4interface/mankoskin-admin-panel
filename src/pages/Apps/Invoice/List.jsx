@@ -25,15 +25,15 @@ const Basic = () => {
   const [variant, setVariant] = useState(false);
   const [mainCategory, setMainCategory] = useState("");
   const [inputs, setInputs] = useState({
-    productSKU: eidt? selectedProduct.productSKU :"",
-    productPrice: eidt? selectedProduct.productPrice :0,
-    salePrice: eidt? selectedProduct.salePrice :0,
-    productDescription: eidt? selectedProduct.productDescription:"",
-    productQuantity: eidt? selectedProduct.productQuantity :0,
-    productDimensions: eidt? selectedProduct.productDimensions :"",
-    productFinish: eidt? selectedProduct.productFinish :"",
-    metaTitle: eidt? selectedProduct.metaTitle :"",
-    metaDescription: eidt? selectedProduct.metaDescription :"",
+    productSKU: edit? selectedProduct.productSKU :"",
+    productPrice: edit? selectedProduct.productPrice :0,
+    salePrice: edit? selectedProduct.salePrice :0,
+    productDescription: edit? selectedProduct.productDescription:"",
+    productQuantity: edit? selectedProduct.productQuantity :0,
+    productDimensions: edit? selectedProduct.productDimensions :"",
+    productFinish: edit? selectedProduct.productFinish :"",
+    metaTitle: edit? selectedProduct.metaTitle :"",
+    metaDescription: edit? selectedProduct.metaDescription :"",
   });
 
   const listings = [
