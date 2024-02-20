@@ -1,6 +1,6 @@
 import React from 'react'
 
-function ProductTable({productList}) {
+function ProductTable({productList,handleEditProduct}) {
   return (
     <div><table className="w-full whitespace-nowrap overflow-x-auto">
     <thead className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-100">
@@ -101,7 +101,7 @@ function ProductTable({productList}) {
  {/* ACTIONS */}
  <td className="px-4 py-2">
      <div className="flex justify-end text-right">
-         <button className="p-2 cursor-pointer text-gray-400 hover:text-info focus:outline-none">
+         <button onClick={()=>handleEditProduct(product)} className="p-2 cursor-pointer text-gray-400 hover:text-info focus:outline-none">
              <p data-tip="true" data-for="edit" className="text-xl">
                  <svg
                      stroke="currentColor"
