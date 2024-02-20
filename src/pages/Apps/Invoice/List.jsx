@@ -21,19 +21,23 @@ const Basic = () => {
   const [images, setImages] = useState([]);
   const [productSlug, setProductSlug] = useState("");
   const [productListings, setSelectedListings] = useState([]);
-  const [productName, setProductName] = useState("");
+  const [productName, setProductName] = useState(selectedProduct?.productName ||"");
   const [variant, setVariant] = useState(false);
   const [mainCategory, setMainCategory] = useState("");
+
+
+
+
   const [inputs, setInputs] = useState({
-    productSKU: eidt? selectedProduct.productSKU :"",
-    productPrice: eidt? selectedProduct.productPrice :0,
-    salePrice: eidt? selectedProduct.salePrice :0,
-    productDescription: eidt? selectedProduct.productDescription:"",
-    productQuantity: eidt? selectedProduct.productQuantity :0,
-    productDimensions: eidt? selectedProduct.productDimensions :"",
-    productFinish: eidt? selectedProduct.productFinish :"",
-    metaTitle: eidt? selectedProduct.metaTitle :"",
-    metaDescription: eidt? selectedProduct.metaDescription :"",
+    productSKU: "",
+    productPrice: 0,
+    salePrice: 0,
+    productDescription: "",
+    productQuantity: 0,
+    productDimensions: "",
+    productFinish: "",
+    metaTitle: "",
+    metaDescription: "",
   });
 
   const listings = [
@@ -454,7 +458,7 @@ const Basic = () => {
           <div className="panel">
             <div className="mb-5 flex items-center justify-between">
               <div className="flex flex-col text-xl font-semibold text-black gap-2">
-                {edit === true ? "Edit product" : "Add Product"}
+                Add Product
                 <span className="text-sm ">
                   Add your product and necessary information from here
                 </span>
@@ -549,12 +553,8 @@ const Basic = () => {
                                 className="block w-full h-12 border px-3 py-1 text-sm focus:outline-none  leading-5 rounded-md bg-gray-100 focus:bg-white focus:border-gray-200 border-gray-200 "
                                 type="text"
                                 name="productName"
-                                value={
-                                 inputs.productName
-                                    
-                                }
                                 onChange={handleProductNameChange}
-                                placeholder="Product Name"
+                                placeholder="Product Title/Name"
                               />
                             </div>
                           </div>
@@ -566,17 +566,8 @@ const Basic = () => {
                               <textarea
                                 className="block w-full border bg-gray-100 focus:bg-white rounded-md focus:outline-none p-3 text-sm border-gray-200"
                                 name="productDescription"
-                                // value={
-                                //   edit === true
-                                //     ? selectedProduct.productDescription
-                                //     : ""
-                                // }
                                 onChange={handleChange}
-                                placeholder={
-                                    edit === true
-                                      ? selectedProduct.productDescription
-                                      : ""
-                                  }
+                                placeholder="Product Description"
                                 rows="4"
                                 spellCheck="false"
                               ></textarea>
@@ -805,15 +796,15 @@ const Basic = () => {
                                                     <input
                                                       name="subCategory"
                                                       type="checkbox"
-                                                      className="mr-2 "
+                                                      className="mr-2"
                                                       checked={
                                                         edit &&
                                                         selectedProduct.subCategory ===
                                                           subCategory
                                                       }
                                                     />
-                                                    <span className="text-black">
-                                                      {subCategory}
+                                                    <span>
+                                                      {subCategory.categoryName}
                                                     </span>
                                                   </label>
                                                 </li>
@@ -837,9 +828,8 @@ const Basic = () => {
                                 className="block w-full h-12 border px-3 py-1 text-sm focus:outline-none  leading-5 rounded-md bg-gray-100 focus:bg-white focus:border-gray-200 border-gray-200 mr-2 p-2"
                                 type="text"
                                 name="productSKU"
-                                // value={edit ? selectedProduct.productSKU : ""}
                                 onChange={handleChange}
-                                placeholder={edit ? selectedProduct.productSKU : ""}
+                                placeholder="Product SKU"
                               />
                             </div>
                           </div>
@@ -855,11 +845,8 @@ const Basic = () => {
                                 <input
                                   name="productPrice"
                                   onChange={handleChange}
-                                //   value={
-                                //     edit ? selectedProduct.productPrice : 0
-                                //   }
                                   type="number"
-                                  placeholder={edit ? selectedProduct.productPrice : 0}
+                                  placeholder="0"
                                   className="h-full bg-gray-100 focus:bg-white focus:border-gray-200 border-gray-200  form-input ltr:rounded-l-none rtl:rounded-r-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                 />
                               </div>
@@ -879,7 +866,6 @@ const Basic = () => {
                                   name="salePrice"
                                   onChange={handleChange}
                                   type="number"
-                                  value={edit ? selectedProduct.salePrice : 0}
                                   placeholder="0"
                                   className="h-full bg-gray-100 focus:bg-white focus:border-gray-200 border-gray-200  form-input ltr:rounded-l-none rtl:rounded-r-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                 />
@@ -897,9 +883,6 @@ const Basic = () => {
                                   type="number"
                                   name="productQuantity"
                                   onChange={handleChange}
-                                  value={
-                                    edit ? selectedProduct.productQuantity : 1
-                                  }
                                   placeholder="Product Quantity"
                                   min="1"
                                 />
@@ -951,11 +934,6 @@ const Basic = () => {
                                 className="block w-full h-12 border px-3 py-1 text-sm focus:outline-none  leading-5 rounded-md bg-gray-100 focus:bg-white focus:border-gray-200 border-gray-200 mr-2 p-2"
                                 type="text"
                                 name="productSlug"
-                                value={
-                                  edit
-                                    ? selectedProduct.productSlug
-                                    : productSlug
-                                }
                                 placeholder="Product Slug"
                               />
                             </div>
@@ -969,9 +947,6 @@ const Basic = () => {
                                 className="block w-full h-12 border px-3 py-1 text-sm focus:outline-none  leading-5 rounded-md bg-gray-100 focus:bg-white focus:border-gray-200 border-gray-200 mr-2 p-2"
                                 type="text"
                                 name="productFinish"
-                                value={
-                                  edit ? selectedProduct.productFinish : ""
-                                }
                                 onChange={handleChange}
                                 placeholder="Product finish"
                               />
@@ -986,9 +961,6 @@ const Basic = () => {
                                 className="block w-full h-12 border px-3 py-1 text-sm focus:outline-none  leading-5 rounded-md bg-gray-100 focus:bg-white focus:border-gray-200 border-gray-200 mr-2 p-2"
                                 type="text"
                                 name="productDimensions"
-                                value={
-                                  edit ? selectedProduct.productDimensions : ""
-                                }
                                 onChange={handleChange}
                                 placeholder="Dimension"
                               />
@@ -1003,7 +975,6 @@ const Basic = () => {
                                 className="block w-full h-12 border px-3 py-1 text-sm focus:outline-none  leading-5 rounded-md bg-gray-100 focus:bg-white focus:border-gray-200 border-gray-200 mr-2 p-2"
                                 type="text"
                                 name="metaTitle"
-                                value={edit ? selectedProduct.metaTitle : ""}
                                 onChange={handleChange}
                                 placeholder="Meta title"
                               />
@@ -1018,9 +989,6 @@ const Basic = () => {
                                 className="block w-full border bg-gray-100 focus:bg-white rounded-md focus:outline-none p-3 text-sm border-gray-200"
                                 name="metaDescription"
                                 onChange={handleChange}
-                                value={
-                                  edit ? selectedProduct?.metaDescription : ""
-                                }
                                 placeholder="Meta Description"
                                 rows="4"
                                 spellcheck="false"
