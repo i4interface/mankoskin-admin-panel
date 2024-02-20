@@ -174,7 +174,7 @@ const Basic = () => {
   };
   const submitProduct = () => {
     if (
-      images.length === 0 ||
+      
       productName.length === 0 ||
       productSlug.length === 0 ||
       inputs.productSKU.length === 0 ||
