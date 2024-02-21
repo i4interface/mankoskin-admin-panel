@@ -1,16 +1,149 @@
 import React,{useState} from 'react'
+import AsideImg from "../../components/product/AsideImg"
+import axiosInstance from '../../api/axios'
+import {toast} from "react-toastify"
 
 
-function EditproductForm() {
-    const [productSKU,setproductSKU] = useState('')
-    const [productPrice,setproductPrice] =useState("")
-    const [salePrice,setSalePrice] = useState("")
-    const [productDescription,setProductDescription] =useState("")
-    const [productQuantity,setproductQuantity] = useState("")
-    const [productDimensions,setProductDimensions] = useState("")
-    const [productFinish,setProductFinish] = useState("")
-    const [metaTitle,setMetaTitle] = useState("")
-    const [metaDescription,setMetaDescription] = useState("")
+function EditproductForm({selectedProduct,handleTabClick,tab,categories,edit,listings,closePopup,isValidImage }) {
+
+
+    const [productName,setProductname] = useState(selectedProduct.productName)
+    const [productSKU,setproductSKU] = useState(selectedProduct.productSKU)
+    const [productPrice,setproductPrice] =useState(selectedProduct.productPrice)
+    const [salePrice,setSalePrice] = useState(selectedProduct.salePrice)
+    const [productImage,setProductImage] = useState(selectedProduct.productImage)
+    const [productDescription,setProductDescription] =useState(selectedProduct.productDescription)
+    const [productListings,setProductListings] = useState(selectedProduct.productListings)
+    const [productSlug,setProductSlug] = useState(selectedProduct.productSlug)
+    const [productQuantity,setproductQuantity] = useState(selectedProduct.productQuantity)
+    const [productDimensions,setProductDimensions] = useState(selectedProduct.productDimensions)
+    const [productFinish,setProductFinish] = useState(selectedProduct.productFinish)
+    const [metaTitle,setMetaTitle] = useState(selectedProduct.metaTitle)
+    const [metaDescription,setMetaDescription] = useState(selectedProduct.metaDescription)
+    const [mainCategory,setMainCategory] = useState(selectedProduct.mainCategory)
+    const [subCategory,setSubCategory] = useState(selectedProduct.subCategory)
+    const [taxClass,setTaxClass] = useState(selectedProduct.taxClass)
+
+    
+
+    const handleImageChange = (event) => {
+      const files = event.target.files;
+      const  newImages = [];
+
+      for (let i = 0; i < files.length; i++) {
+        console.log(files[i].name);
+        if (isValidImage(files[i].name)) {
+          const file = files[i];
+          const reader = new FileReader();
+          reader.onload = () => {
+          newImages.push(reader.result);
+        if (newImages.length === files.length) {
+          setProductImage(prevImages => [...prevImages, ...newImages]);
+        }
+      };
+  
+          reader.onerror = (error) => {
+            console.log(error);
+          };
+  
+          reader.readAsDataURL(file);
+        } else {
+          toast.error("Add valid image");
+          break;
+        }
+      }
+    };
+
+    
+    const handleCategoryChange = (mainCategory, subCategory) => {
+      console.log(mainCategory)
+      console.log(subCategory)
+      if (subCategory) {
+        setSubCategory(subCategory);
+        setMainCategory(mainCategory);
+      } else {
+        setMainCategory(mainCategory);
+        setSubCategory(null);
+      }
+    };
+
+
+
+  
+
+    const removeImg = (index) => {
+      console.log("removing")
+      console.log("productImage",productImage)
+      const updatedImages = [...productImage];
+
+      updatedImages.splice(index, 1);
+      console.log("updatedImages",updatedImages)
+      setProductImage(updatedImages);
+    };
+
+
+    const handleListingChange = (e) => {
+      const name = e.target.value;
+      const isChecked = e.target.checked;
+  
+      if (isChecked) {
+        setProductListings((prevListings) => [...prevListings, name]);
+      } else {
+        setProductListings((prevListings) =>
+          prevListings.filter((item) => item !== name)
+        );
+      }
+    };
+
+    const handleProductSlug = (name) => {
+      const slug = name.toLowerCase().replace(/\s+/g, "-");
+      setProductSlug(slug);
+    };
+
+    const submitProduct = () => {
+      if (
+        productImage.length === 0 ||
+        productName.length === 0 ||
+        productSlug.length === 0 ||
+        productSKU.length === 0 ||
+        productDescription.length === 0 ||
+        metaTitle.length === 0 ||
+        productListings.length === 0 
+      ) {
+        toast.error("Please fill all the field");
+      } else if (
+        productPrice <= 0 ||
+        salePrice <= 0 ||
+        productQuantity <= 0
+      ) {
+        toast.error("Please enter valid price or quantit");
+      } else {
+        console.log(
+          "herere",
+          productSlug,
+          productName,
+          productListings
+        );
+        handleProductSlug(productSlug)
+        console.log("productSlug befor submit",productSlug)
+        axiosInstance
+          .put(`/admin/editproduct/${selectedProduct._id}`, {
+            productImage, productSlug, productName, subCategory, mainCategory, productListings,  productSKU,
+            productPrice,
+            salePrice,
+            productDescription,
+            productQuantity,
+            productDimensions,
+            productFinish,
+            metaTitle,
+            metaDescription, 
+          })
+          .then((res) => {
+            toast.success(res.data.message);
+            closePopup();
+          });
+      }
+    };
   return (
     <div
           className="popup showPopUp w-full absolute right-0 top-[8%] md:w-[80%] min-h-screen bg-white "
@@ -19,9 +152,9 @@ function EditproductForm() {
           <div className="panel">
             <div className="mb-5 flex items-center justify-between">
               <div className="flex flex-col text-xl font-semibold text-black gap-2">
-                {edit === true ? "Edit product" : "Add Product"}
+                Edit product
                 <span className="text-sm ">
-                  Add your product and necessary information from here
+                  Edit your product and necessary information from here
                 </span>
               </div>
 
@@ -115,10 +248,8 @@ function EditproductForm() {
                                 className="block w-full h-12 border px-3 py-1 text-sm focus:outline-none  leading-5 rounded-md bg-gray-100 focus:bg-white focus:border-gray-200 border-gray-200 "
                                 type="text"
                                 name="productName"
-                                value={  edit === true
-                                    ? selectedProduct.productName
-                                    :"" }
-                                onChange={handleProductNameChange}
+                                value={productName}
+                                onChange={(e)=>setProductname(e.target.value)}
                                 placeholder="Product Name"
                               />
                             </div>
@@ -131,12 +262,8 @@ function EditproductForm() {
                               <textarea
                                 className="block w-full border bg-gray-100 focus:bg-white rounded-md focus:outline-none p-3 text-sm border-gray-200"
                                 name="productDescription"
-                                value={
-                                  edit === true
-                                    ? selectedProduct.productDescription
-                                    : ""
-                                }
-                                onChange={handleChange}
+                                value={productDescription}
+                                onChange={(e)=>setProductDescription(e.target.value)}
                                 placeholder="Product DesCription"
                                 rows="4"
                                 spellCheck="false"
@@ -195,14 +322,14 @@ function EditproductForm() {
                                     be accepted)
                                   </em>
                                 </div>
-                                <div className="text-emerald-500">
+                                {/* <div className="text-emerald-500">
                                   Uploading ..
-                                </div>
+                                </div> */}
 
                                 <aside className="flex flex-row flex-wrap mt-4">
-                                  {edit ? (
-                                    selectedProduct.productImage.length > 0 ? (
-                                      selectedProduct.productImage.map(
+                                  
+                                   { productImage.length > 0 ? (
+                                      productImage.map(
                                         (image, index) => (
                                           <div
                                             draggable="true"
@@ -259,67 +386,9 @@ function EditproductForm() {
                                         )
                                       )
                                     ) : (
-                                      <AsideImg />
+                                      <AsideImg/>
                                     )
-                                  ) : selectedProduct.productImage.length >
-                                    0 ? (
-                                    images.map((image, index) => (
-                                      <div
-                                        draggable="true"
-                                        className="flex gap-4"
-                                        data-handler-id="T0"
-                                        key={index}
-                                      >
-                                        <div className="relative mr-4 ">
-                                          <img
-                                            className="inline-flex border rounded-md border-gray-100 w-24 max-h-24 p-2 m-2"
-                                            src={image}
-                                            alt="product"
-                                          />
-                                          <p className="text-xs absolute py-1 w-full bottom-0 inset-x-0 bg-blue-500 rounded-full text-white text-center">
-                                            Product Image
-                                          </p>
-                                          <button
-                                            onClick={() => removeImg(index)}
-                                            type="button"
-                                            className="absolute top-0 right-0 text-red-500 focus:outline-none"
-                                          >
-                                            <svg
-                                              stroke="currentColor"
-                                              fill="none"
-                                              strokeWidth="2"
-                                              viewBox="0 0 24 24"
-                                              strokeLinecap="round"
-                                              strokeLinejoin="round"
-                                              height="1em"
-                                              width="1em"
-                                              xmlns="http://www.w3.org/2000/svg"
-                                            >
-                                              <circle
-                                                cx="12"
-                                                cy="12"
-                                                r="10"
-                                              ></circle>
-                                              <line
-                                                x1="15"
-                                                y1="9"
-                                                x2="9"
-                                                y2="15"
-                                              ></line>
-                                              <line
-                                                x1="9"
-                                                y1="9"
-                                                x2="15"
-                                                y2="15"
-                                              ></line>
-                                            </svg>
-                                          </button>
-                                        </div>
-                                      </div>
-                                    ))
-                                  ) : (
-                                    <AsideImg />
-                                  )}
+                                  }
                                 </aside>
                               </div>
                             </div>
@@ -342,15 +411,10 @@ function EditproductForm() {
                                         <li className="my-2" key={index}>
                                           <label className="inline-flex">
                                             <input
-                                              type="checkbox"
+                                              type="radio"
                                               name="category"
                                               className="mr-2"
-                                              checked={
-                                                edit &&
-                                                category.categoryName ===
-                                                  selectedProduct.mainCategory
-                                                    .categoryName
-                                              }
+                                              defaultChecked={selectedProduct.mainCategory.categoryName === category.categoryName}
                                               onChange={() =>
                                                 handleCategoryChange(category._id)
                                               }
@@ -367,10 +431,9 @@ function EditproductForm() {
                                                       name="subCategory"
                                                       type="checkbox"
                                                       className="mr-2 "
-                                                      checked={
-                                                        edit &&
-                                                        selectedProduct.subCategory ===
-                                                          subCategory
+                                                      defaultChecked={selectedProduct.subCategory.includes(subCategory)}
+                                                      onChange={() =>
+                                                        handleCategoryChange(category._id,subCategory)
                                                       }
                                                     />
                                                     <span className="text-black">
@@ -398,8 +461,8 @@ function EditproductForm() {
                                 className="block w-full h-12 border px-3 py-1 text-sm focus:outline-none  leading-5 rounded-md bg-gray-100 focus:bg-white focus:border-gray-200 border-gray-200 mr-2 p-2"
                                 type="text"
                                 name="productSKU"
-                                value={edit ? selectedProduct.productSKU : ""}
-                                onChange={handleChange}
+                                value={productSKU}
+                                onChange={(e)=>setproductSKU(e.target.value)}
                                 placeholder="Product SKU"
                               />
                             </div>
@@ -415,10 +478,8 @@ function EditproductForm() {
                                 </div>
                                 <input
                                   name="productPrice"
-                                  onChange={handleChange}
-                                  value={
-                                    edit ? selectedProduct.productPrice : 0
-                                  }
+                                  onChange={(e)=>setproductPrice(e.target.value)}
+                                  value={productPrice}
                                   type="number"
                                   placeholder='Product Price'
                                   className="h-full bg-gray-100 focus:bg-white focus:border-gray-200 border-gray-200  form-input ltr:rounded-l-none rtl:rounded-r-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
@@ -438,9 +499,9 @@ function EditproductForm() {
                                 </div>
                                 <input
                                   name="salePrice"
-                                  onChange={handleChange}
+                                  onChange={(e)=>setSalePrice(e.target.value)}
                                   type="number"
-                                  value={edit ? selectedProduct.salePrice : 0}
+                                  value={salePrice}
                                   placeholder="0"
                                   className="h-full bg-gray-100 focus:bg-white focus:border-gray-200 border-gray-200  form-input ltr:rounded-l-none rtl:rounded-r-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                 />
@@ -454,16 +515,50 @@ function EditproductForm() {
                             <div className="col-span-8 sm:col-span-4">
                               <div className="flex flex-row">
                                 <input
-                                  className="block w-full h-12 border px-3 py-1 text-sm focus:outline-none  leading-5 rounded-md bg-gray-100 focus:bg-white border-gray-400 opacity-50 mr-2 p-2"
+                                  className="block w-full h-12 border px-3 py-1 text-sm focus:outline-none   leading-5 rounded-md bg-gray-100 focus:bg-white border-gray-400 opacity-50 mr-2 p-2"
                                   type="number"
                                   name="productQuantity"
-                                  onChange={handleChange}
-                                  value={
-                                    edit ? selectedProduct.productQuantity : 1
-                                  }
+                                  onChange={(e)=>setproductQuantity(e.target.value)}
+                                  value={productQuantity}
                                   placeholder="Product Quantity"
                                   min="1"
                                 />
+                              </div>
+                            </div>
+                          </div>
+
+                          
+                          <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
+                            <label className="block text-sm text-gray-800 col-span-4 sm:col-span-2 font-medium">
+                              Product Tax
+                            </label>
+                            <div className="col-span-8 sm:col-span-4">
+                              <div className="mb-2">
+                                <div className="w-full h-50 border border-gray-700 overflow-auto ">
+                                  <div className="w-full h-6 bg-slate-50 text-sm font-medium flex items-center p-4">
+                                    All Product taxes
+                                  </div>
+                                  <form>
+                                    <ul className="ml-4">
+                                      {
+                                        [5,8,12].map((tax,i)=>(
+                                          <li className="my-2" >
+                                          <label className="inline-flex">
+                                            <input
+                                              type="radio"
+                                              name="category"
+                                              className="mr-2"
+                                              defaultChecked={selectedProduct.taxClass === tax}
+                                                
+                                            />
+                                            <span>{tax}%</span>
+                                          </label>
+                                        </li>
+                                        ))
+                                      }
+                                    </ul>
+                                  </form>
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -487,6 +582,7 @@ function EditproductForm() {
                                                 type="checkbox"
                                                 name="productListings"
                                                 className="mr-2"
+                                                checked={productListings.includes(list.value)}
                                                 value={list.value}
                                                 onChange={(e) =>
                                                   handleListingChange(e)
@@ -512,11 +608,8 @@ function EditproductForm() {
                                 className="block w-full h-12 border px-3 py-1 text-sm focus:outline-none  leading-5 rounded-md bg-gray-100 focus:bg-white focus:border-gray-200 border-gray-200 mr-2 p-2"
                                 type="text"
                                 name="productSlug"
-                                value={
-                                  edit
-                                    ? selectedProduct.productSlug
-                                    : productSlug
-                                }
+                                defaultValue={productSlug}
+                                onChange={()=>setProductSlug(e.target.value)}
                                 placeholder="Product Slug"
                               />
                             </div>
@@ -530,10 +623,8 @@ function EditproductForm() {
                                 className="block w-full h-12 border px-3 py-1 text-sm focus:outline-none  leading-5 rounded-md bg-gray-100 focus:bg-white focus:border-gray-200 border-gray-200 mr-2 p-2"
                                 type="text"
                                 name="productFinish"
-                                value={
-                                  edit ? selectedProduct.productFinish : ""
-                                }
-                                onChange={handleChange}
+                                value={productFinish}
+                                onChange={(e)=>setProductFinish(e.target.value)}
                                 placeholder="Product finish"
                               />
                             </div>
@@ -547,10 +638,8 @@ function EditproductForm() {
                                 className="block w-full h-12 border px-3 py-1 text-sm focus:outline-none  leading-5 rounded-md bg-gray-100 focus:bg-white focus:border-gray-200 border-gray-200 mr-2 p-2"
                                 type="text"
                                 name="productDimensions"
-                                value={
-                                  edit ? selectedProduct.productDimensions : ""
-                                }
-                                onChange={handleChange}
+                                value={productDimensions}
+                                onChange={(e)=>setProductDimensions(e.target.value)}
                                 placeholder="Dimension"
                               />
                             </div>
@@ -564,8 +653,8 @@ function EditproductForm() {
                                 className="block w-full h-12 border px-3 py-1 text-sm focus:outline-none  leading-5 rounded-md bg-gray-100 focus:bg-white focus:border-gray-200 border-gray-200 mr-2 p-2"
                                 type="text"
                                 name="metaTitle"
-                                value={edit ? selectedProduct.metaTitle : ""}
-                                onChange={handleChange}
+                                value={metaTitle}
+                                onChange={(e)=>setMetaTitle(e.target.value)}
                                 placeholder="Meta title"
                               />
                             </div>
@@ -578,10 +667,8 @@ function EditproductForm() {
                               <textarea
                                 className="block w-full border bg-gray-100 focus:bg-white rounded-md focus:outline-none p-3 text-sm border-gray-200"
                                 name="metaDescription"
-                                onChange={handleChange}
-                                value={
-                                  edit ? selectedProduct?.metaDescription : ""
-                                }
+                                onChange={(e)=>setMetaDescription(e.target.value)}
+                                value={metaDescription}
                                 placeholder="Meta Description"
                                 rows="4"
                                 spellcheck="false"
@@ -605,7 +692,7 @@ function EditproductForm() {
                               className="align-bottom inline-flex items-center justify-center cursor-pointer leading-5 transition-colors duration-150 font-medium focus:outline-none px-4 py-2 rounded-lg text-sm text-white bg-emerald-500 border border-transparent active:bg-emerald-600 hover:bg-emerald-600 w-full h-12"
                               type="submit"
                             >
-                              <span>Add Product</span>
+                              <span>Update Product</span>
                             </button>
                           </div>
                         </div>
@@ -622,8 +709,8 @@ function EditproductForm() {
             </div>
 
             {/* <!-- change variant image --> */}
-            <div
-              className="fixed hidden z-30 rounded-xl w-[90%] sm:w-auto top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] flex flex-col justify-center items-center popUp-social bg-white shadow-lg p-8"
+            {/* <div
+              className="fixed z-30 rounded-xl w-[90%] sm:w-auto top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] flex flex-col justify-center items-center popUp-social bg-white shadow-lg p-8"
               style={{ boxShadow: "2px 5px 20px 3px #4361eeb8" }}
               id="variantImage"
             >
@@ -636,7 +723,6 @@ function EditproductForm() {
                 <span id="img-name">Image_name.jpg</span>
               </div>
 
-              {/* <!-- add new social media --> */}
               <div className="flex flex-col gap-4">
                 <button className="w-full h-12 bg-blue-400 hover:bg-blue-600 text-white font-semibold uppercase rounded-lg transition-all duration-300 ease-in-out">
                   Update
@@ -649,7 +735,7 @@ function EditproductForm() {
                   Cancel
                 </button>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
   )

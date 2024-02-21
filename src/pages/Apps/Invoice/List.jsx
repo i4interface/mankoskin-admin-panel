@@ -10,6 +10,7 @@ import IconCaretDown from "../../../components/Icon/IconCaretDown";
 import CodeHighlight from "../../../components/Highlight";
 import BasicInfo from "../../../components/product/BasicInfo";
 import { useSelector } from "react-redux";
+import EditproductForm from "../../../components/product/EditproductForm";
 const Basic = () => {
   const [popupVisible, setPopupVisible] = useState(false);
   const [products, setproducts] = useState([]);
@@ -24,9 +25,9 @@ const Basic = () => {
   const [productName, setProductName] = useState(selectedProduct?.productName ||"");
   const [variant, setVariant] = useState(false);
   const [mainCategory, setMainCategory] = useState("");
+  const [taxClass,setTaxClass] = useState(0)
 
-
-
+  console.log("taxClass",taxClass)
 
   const [inputs, setInputs] = useState({
     productSKU: "",
@@ -38,6 +39,7 @@ const Basic = () => {
     productFinish: "",
     metaTitle: "",
     metaDescription: "",
+
   });
 
   const listings = [
@@ -88,15 +90,22 @@ const Basic = () => {
 
   console.log("selectedcategory", selectedCategory);
 
-  const handleCategoryChange = (categoryName, mainCategory) => {
-    setSelectedCategory(categoryName);
-    setMainCategory(mainCategory);
+  const handleCategoryChange = (mainCategory, subCategory) => {
+    console.log("vbvcb")
+    console.log(mainCategory)
+    console.log(subCategory)
+    if (subCategory) {
+      setSelectedCategory(subCategory);
+      setMainCategory(mainCategory);
+    } else {
+      setMainCategory(mainCategory);
+      setSelectedCategory(null);
+    }
   };
 
   const handleEditProduct = (product) => {
     setEdit(true);
     setSelectedProduct(product);
-    setPopupVisible(true);
   };
 
   console.log("selectedProduct", selectedProduct);
@@ -123,10 +132,14 @@ const Basic = () => {
 
   const handleProductNameChange = (e) => {
     const name = e.target.value;
+    // const name2 = e.target.defaultValue;
+
     setProductName(name);
     const slug = name.toLowerCase().replace(/\s+/g, "-");
     setProductSlug(slug);
   };
+
+
   const handleChange = (e) => {
     setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
@@ -137,6 +150,7 @@ const Basic = () => {
     setPopupVisible(true);
   };
   const closePopup = () => {
+    setEdit(false)
     setPopupVisible(false);
   };
   useEffect(() => {
@@ -191,21 +205,21 @@ const Basic = () => {
     } else if (
       inputs.productPrice <= 0 ||
       inputs.salePrice <= 0 ||
-      inputs.productQuantity <= 0
+      inputs.productQuantity <= 0||
+      taxClass <=0
     ) {
       toast.error("Please enter valid price or quantit");
     } else {
       console.log(
         "herere",
-        inputs,
-        images,
-        productSlug,
-        productName,
-        productListings
+        selectedCategory,
+        mainCategory,
+   
       );
       axiosInstance
         .post("/admin/addproduct", {
           inputs,
+          taxClass,
           images,
           productSlug,
           productName,
@@ -215,6 +229,7 @@ const Basic = () => {
         })
         .then((res) => {
           toast.success(res.data.message);
+          setImages([])
           closePopup();
         });
     }
@@ -441,6 +456,7 @@ const Basic = () => {
             <div className="invoice-table mt-5 overflow-x-auto">
               {/* <!-- Table--> */}
               <ProductTable
+                
                 productList={products}
                 handleEditProduct={handleEditProduct}
               />
@@ -448,6 +464,12 @@ const Basic = () => {
           </div>
         </div>
       </div>
+
+      {
+        edit && (
+          <EditproductForm isValidImage={isValidImage} listings={listings} selectedProduct={selectedProduct} handleTabClick={handleTabClick} tab={tab} categories={categories} edit={edit} closePopup={closePopup}/>
+        )
+      }
 
       {/* modal add product */}
       {popupVisible && (
@@ -630,70 +652,10 @@ const Basic = () => {
                                 </div>
 
                                 <aside className="flex flex-row flex-wrap mt-4">
-                                  {edit ? (
-                                    selectedProduct.productImage.length > 0 ? (
-                                      selectedProduct.productImage.map(
-                                        (image, index) => (
-                                          <div
-                                            draggable="true"
-                                            className="flex gap-4"
-                                            data-handler-id="T0"
-                                            key={index}
-                                          >
-                                            <div className="relative mr-4 ">
-                                              <img
-                                                className="inline-flex border rounded-md border-gray-100 w-24 max-h-24 p-2 m-2"
-                                                src={image}
-                                                alt="product"
-                                              />
-                                              <p className="text-xs absolute py-1 w-full bottom-0 inset-x-0 bg-blue-500 rounded-full text-white text-center">
-                                                Product Image
-                                              </p>
-                                              <button
-                                                onClick={() => removeImg(index)}
-                                                type="button"
-                                                className="absolute top-0 right-0 text-red-500 focus:outline-none"
-                                              >
-                                                <svg
-                                                  stroke="currentColor"
-                                                  fill="none"
-                                                  strokeWidth="2"
-                                                  viewBox="0 0 24 24"
-                                                  strokeLinecap="round"
-                                                  strokeLinejoin="round"
-                                                  height="1em"
-                                                  width="1em"
-                                                  xmlns="http://www.w3.org/2000/svg"
-                                                >
-                                                  <circle
-                                                    cx="12"
-                                                    cy="12"
-                                                    r="10"
-                                                  ></circle>
-                                                  <line
-                                                    x1="15"
-                                                    y1="9"
-                                                    x2="9"
-                                                    y2="15"
-                                                  ></line>
-                                                  <line
-                                                    x1="9"
-                                                    y1="9"
-                                                    x2="15"
-                                                    y2="15"
-                                                  ></line>
-                                                </svg>
-                                              </button>
-                                            </div>
-                                          </div>
-                                        )
-                                      )
-                                    ) : (
-                                      <AsideImg />
-                                    )
-                                  ) : selectedProduct.productImage.length >
+                                  {
+                                     images?.length >
                                     0 ? (
-                                    images.map((image, index) => (
+                                    images?.map((image, index) => (
                                       <div
                                         draggable="true"
                                         className="flex gap-4"
@@ -772,17 +734,11 @@ const Basic = () => {
                                         <li className="my-2" key={index}>
                                           <label className="inline-flex">
                                             <input
-                                              type="checkbox"
+                                              type="radio"
                                               name="category"
                                               className="mr-2"
-                                              checked={
-                                                edit &&
-                                                category.categoryName ===
-                                                  selectedProduct.mainCategory
-                                                    .categoryName
-                                              }
                                               onChange={() =>
-                                                handleCategoryChange(category)
+                                                handleCategoryChange(category._id)
                                               }
                                             />
                                             <span>{category.categoryName}</span>
@@ -797,14 +753,12 @@ const Basic = () => {
                                                       name="subCategory"
                                                       type="checkbox"
                                                       className="mr-2"
-                                                      checked={
-                                                        edit &&
-                                                        selectedProduct.subCategory ===
-                                                          subCategory
+                                                      onChange={() =>
+                                                        handleCategoryChange(category._id,subCategory)
                                                       }
                                                     />
                                                     <span>
-                                                      {subCategory.categoryName}
+                                                      {subCategory}
                                                     </span>
                                                   </label>
                                                 </li>
@@ -890,6 +844,43 @@ const Basic = () => {
                             </div>
                           </div>
 
+                                                    
+                          <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
+                            <label className="block text-sm text-gray-800 col-span-4 sm:col-span-2 font-medium">
+                              Product Tax
+                            </label>
+                            <div className="col-span-8 sm:col-span-4">
+                              <div className="mb-2">
+                                <div className="w-full h-50 border border-gray-700 overflow-auto ">
+                                  <div className="w-full h-6 bg-slate-50 text-sm font-medium flex items-center p-4">
+                                    All Product taxes
+                                  </div>
+                                  <form>
+                                    <ul className="ml-4">
+                                      {
+                                        [5,12,18].map((tax,i)=>(
+                                          <li className="my-2" key={i} >
+                                          <label className="inline-flex">
+                                            <input
+                                              type="radio"
+                                              name="category"
+                                              className="mr-2"
+
+                                              onChange={()=>setTaxClass(tax)}
+                                              
+                                            />
+                                            <span>{tax}%</span>
+                                          </label>
+                                        </li>
+                                        ))
+                                      }
+                                    </ul>
+                                  </form>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
                           <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
                             <label className="block text-sm text-gray-800 col-span-4 sm:col-span-2 font-medium">
                               Product Listings
@@ -934,7 +925,9 @@ const Basic = () => {
                                 className="block w-full h-12 border px-3 py-1 text-sm focus:outline-none  leading-5 rounded-md bg-gray-100 focus:bg-white focus:border-gray-200 border-gray-200 mr-2 p-2"
                                 type="text"
                                 name="productSlug"
+                                value={productSlug}
                                 placeholder="Product Slug"
+                                onChange={(e)=>setProductSlug(e.target.value)}
                               />
                             </div>
                           </div>
