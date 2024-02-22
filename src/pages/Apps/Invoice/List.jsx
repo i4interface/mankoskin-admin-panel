@@ -14,7 +14,9 @@ import EditproductForm from "../../../components/product/EditproductForm";
 const Basic = () => {
   const [popupVisible, setPopupVisible] = useState(false);
   const [products, setproducts] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState("");
+  const [deleteModal, setDeleteModal] = useState(false)
+  const [productId,setProductId] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState({});
   const [edit, setEdit] = useState(false);
   const [tab, setTab] = useState("home");
@@ -22,16 +24,31 @@ const Basic = () => {
   const [images, setImages] = useState([]);
   const [productSlug, setProductSlug] = useState("");
   const [productListings, setSelectedListings] = useState([]);
-  const [productName, setProductName] = useState(selectedProduct?.productName ||"");
+  const [productName, setProductName] = useState(
+    selectedProduct?.productName || ""
+  );
   const [variant, setVariant] = useState(false);
   const [mainCategory, setMainCategory] = useState("");
-  const [taxClass,setTaxClass] = useState(0)
+  const [taxClass, setTaxClass] = useState(0);
 
-  console.log("taxClass",taxClass)
+  const handleConfirm = (confirm) => {
+    if (confirm === "yes") {
+       setDeleteModal(false)
+        axiosInstance.delete(`/admin/deleteproduct/${productId}`).then((res) => {
+            const updatedProducts = products.filter(product => product._id !== productId);
+            setproducts(updatedProducts);
+            toast.success(res.data.message)
+        }).catch((error) => {
+          toast.error(res.data.error)
+        });
+    }else{
+       setDeleteModal(false)
+    }
+}
 
   const [inputs, setInputs] = useState({
     productSKU: "",
-    productHSNcode:"",
+    productHSNcode: "",
     productPrice: 0,
     salePrice: 0,
     productDescription: "",
@@ -40,7 +57,6 @@ const Basic = () => {
     productFinish: "",
     metaTitle: "",
     metaDescription: "",
-
   });
 
   const listings = [
@@ -80,7 +96,6 @@ const Basic = () => {
     useSelector((state) => state.themeConfig.rtlClass) === "rtl" ? true : false;
 
   const [codeArr, setCodeArr] = useState([]);
-
   const toggleCode = (name) => {
     if (codeArr.includes(name)) {
       setCodeArr((value) => value.filter((d) => d !== name));
@@ -89,18 +104,18 @@ const Basic = () => {
     }
   };
 
-  console.log("selectedcategory", selectedCategory);
+  const handleCategoryChange = (mainCategory) => {
+    setMainCategory(mainCategory);
+  };
 
-  const handleCategoryChange = (mainCategory, subCategory) => {
-    console.log("vbvcb")
-    console.log(mainCategory)
-    console.log(subCategory)
-    if (subCategory) {
-      setSelectedCategory(subCategory);
-      setMainCategory(mainCategory);
+  const changeSubCategory = (e) => {
+    const name = e.target.name;
+    const isChecked = e.target.checked;
+
+    if (isChecked) {
+      setSelectedCategory((prev) => [...prev, name]);
     } else {
-      setMainCategory(mainCategory);
-      setSelectedCategory(null);
+      setSelectedCategory((prev) => prev.filter((item) => item !== name));
     }
   };
 
@@ -108,9 +123,6 @@ const Basic = () => {
     setEdit(true);
     setSelectedProduct(product);
   };
-
-  console.log("selectedProduct", selectedProduct);
-  console.log(popupVisible, "popup");
 
   const handleListingChange = (e) => {
     const name = e.target.value;
@@ -140,7 +152,6 @@ const Basic = () => {
     setProductSlug(slug);
   };
 
-
   const handleChange = (e) => {
     setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
@@ -151,7 +162,7 @@ const Basic = () => {
     setPopupVisible(true);
   };
   const closePopup = () => {
-    setEdit(false)
+    setEdit(false);
     setPopupVisible(false);
   };
   useEffect(() => {
@@ -159,11 +170,13 @@ const Basic = () => {
       setcategories(res.data.categories);
     });
   }, []);
+
   function isValidImage(logo) {
     const validExtensions = [".jpg", ".jpeg", ".png", ".webp"];
     const extension = logo.substr(logo.lastIndexOf(".")).toLowerCase();
     return validExtensions.includes(extension);
   }
+
   const handleImageChange = (event) => {
     const files = event.target.files;
     const results = [];
@@ -206,17 +219,12 @@ const Basic = () => {
     } else if (
       inputs.productPrice <= 0 ||
       inputs.salePrice <= 0 ||
-      inputs.productQuantity <= 0||
-      taxClass <=0
+      inputs.productQuantity <= 0 ||
+      taxClass <= 0
     ) {
       toast.error("Please enter valid price or quantit");
     } else {
-      console.log(
-        "herere",
-        selectedCategory,
-        mainCategory,
-   
-      );
+      console.log("herere", selectedCategory, mainCategory);
       axiosInstance
         .post("/admin/addproduct", {
           inputs,
@@ -230,7 +238,7 @@ const Basic = () => {
         })
         .then((res) => {
           toast.success(res.data.message);
-          setImages([])
+          setImages([]);
           closePopup();
         });
     }
@@ -457,20 +465,52 @@ const Basic = () => {
             <div className="invoice-table mt-5 overflow-x-auto">
               {/* <!-- Table--> */}
               <ProductTable
-                
+                setProductId={setProductId}
+                setDeleteModal={setDeleteModal}
                 productList={products}
                 handleEditProduct={handleEditProduct}
               />
             </div>
+
+            {/* <!-- change variant image --> */}
+            {
+              deleteModal && (
+                <div className="fixed  inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                <div className="bg-white p-8 rounded-md shadow-md">
+                  <p className="mb-4">Are you sure you want to delete this product?</p>
+                  <button
+                    onClick={() => handleConfirm("yes")}
+                    className=" bg-gray-500 text-white px-4 py-2 rounded-md mr-2"
+                  >
+                    Yes
+                  </button>
+                  <button
+                    onClick={() => handleConfirm("no")}
+                    className="bg-black text-white px-4 py-2 rounded-md"
+                  >
+                    No
+                  </button>
+                </div>
+              </div>
+              )
+            }
+
           </div>
         </div>
       </div>
 
-      {
-        edit && (
-          <EditproductForm isValidImage={isValidImage} listings={listings} selectedProduct={selectedProduct} handleTabClick={handleTabClick} tab={tab} categories={categories} edit={edit} closePopup={closePopup}/>
-        )
-      }
+      {edit && (
+        <EditproductForm
+          isValidImage={isValidImage}
+          listings={listings}
+          selectedProduct={selectedProduct}
+          handleTabClick={handleTabClick}
+          tab={tab}
+          categories={categories}
+          edit={edit}
+          closePopup={closePopup}
+        />
+      )}
 
       {/* modal add product */}
       {popupVisible && (
@@ -653,9 +693,7 @@ const Basic = () => {
                                 </div>
 
                                 <aside className="flex flex-row flex-wrap mt-4">
-                                  {
-                                     images?.length >
-                                    0 ? (
+                                  {images?.length > 0 ? (
                                     images?.map((image, index) => (
                                       <div
                                         draggable="true"
@@ -739,7 +777,9 @@ const Basic = () => {
                                               name="category"
                                               className="mr-2"
                                               onChange={() =>
-                                                handleCategoryChange(category._id)
+                                                handleCategoryChange(
+                                                  category._id
+                                                )
                                               }
                                             />
                                             <span>{category.categoryName}</span>
@@ -751,16 +791,14 @@ const Basic = () => {
                                                 <li key={subIndex}>
                                                   <label className="inline-flex">
                                                     <input
-                                                      name="subCategory"
+                                                      name={subCategory}
                                                       type="checkbox"
                                                       className="mr-2"
-                                                      onChange={() =>
-                                                        handleCategoryChange(category._id,subCategory)
+                                                      onChange={(e) =>
+                                                        changeSubCategory(e)
                                                       }
                                                     />
-                                                    <span>
-                                                      {subCategory}
-                                                    </span>
+                                                    <span>{subCategory}</span>
                                                   </label>
                                                 </li>
                                               )
@@ -859,7 +897,7 @@ const Basic = () => {
                               />
                             </div>
                           </div>
-                                                    
+
                           <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
                             <label className="block text-sm text-gray-800 col-span-4 sm:col-span-2 font-medium">
                               Product Tax
@@ -872,23 +910,19 @@ const Basic = () => {
                                   </div>
                                   <form>
                                     <ul className="ml-4">
-                                      {
-                                        [5,12,18].map((tax,i)=>(
-                                          <li className="my-2" key={i} >
+                                      {[5, 12, 18].map((tax, i) => (
+                                        <li className="my-2" key={i}>
                                           <label className="inline-flex">
                                             <input
                                               type="radio"
                                               name="category"
                                               className="mr-2"
-
-                                              onChange={()=>setTaxClass(tax)}
-                                              
+                                              onChange={() => setTaxClass(tax)}
                                             />
                                             <span>{tax}%</span>
                                           </label>
                                         </li>
-                                        ))
-                                      }
+                                      ))}
                                     </ul>
                                   </form>
                                 </div>
@@ -907,24 +941,22 @@ const Basic = () => {
                                     Select Locations
                                   </div>
                                   <ul className="ml-4">
-                                    {
-                                        listings.map((list,index)=>(
-                                            <li key={index} className="my-2">
-                                            <label className="inline-flex">
-                                              <input
-                                                type="checkbox"
-                                                name="productListings"
-                                                className="mr-2"
-                                                value={list.value}
-                                                onChange={(e) =>
-                                                  handleListingChange(e)
-                                                }
-                                              />
-                                              <span>{list.name}</span>
-                                            </label>
-                                          </li>
-                                        ))
-                                    }
+                                    {listings.map((list, index) => (
+                                      <li key={index} className="my-2">
+                                        <label className="inline-flex">
+                                          <input
+                                            type="checkbox"
+                                            name="productListings"
+                                            className="mr-2"
+                                            value={list.value}
+                                            onChange={(e) =>
+                                              handleListingChange(e)
+                                            }
+                                          />
+                                          <span>{list.name}</span>
+                                        </label>
+                                      </li>
+                                    ))}
                                   </ul>
                                 </div>
                               </div>
@@ -942,7 +974,7 @@ const Basic = () => {
                                 name="productSlug"
                                 value={productSlug}
                                 placeholder="Product Slug"
-                                onChange={(e)=>setProductSlug(e.target.value)}
+                                onChange={(e) => setProductSlug(e.target.value)}
                               />
                             </div>
                           </div>
@@ -1032,36 +1064,6 @@ const Basic = () => {
                 {/* {tab === 'basic-info' && (
                                       <BasicInfo/>
                      )} */}
-              </div>
-            </div>
-
-            {/* <!-- change variant image --> */}
-            <div
-              className="fixed hidden z-30 rounded-xl w-[90%] sm:w-auto top-[50%] left-[50%] translate-x-[-50%] translate-y-[-50%] flex flex-col justify-center items-center popUp-social bg-white shadow-lg p-8"
-              style={{ boxShadow: "2px 5px 20px 3px #4361eeb8" }}
-              id="variantImage"
-            >
-              <div className="flex flex-col justify-center items-center gap-4 mb-4">
-                <img
-                  src="assets/images/carousel2.jpeg"
-                  className="w-[100px] aspect-square rounded-full object-cover"
-                  alt="new-product-img"
-                />
-                <span id="img-name">Image_name.jpg</span>
-              </div>
-
-              {/* <!-- add new social media --> */}
-              <div className="flex flex-col gap-4">
-                <button className="w-full h-12 bg-blue-400 hover:bg-blue-600 text-white font-semibold uppercase rounded-lg transition-all duration-300 ease-in-out">
-                  Update
-                </button>
-                <button
-                  onClick={closePopup}
-                  type="button"
-                  className="w-full h-12 bg-slate-100 border-[0.5px] border-slate-200 hover:bg-slate-200 text-danger font-semibold rounded-lg"
-                >
-                  Cancel
-                </button>
               </div>
             </div>
           </div>

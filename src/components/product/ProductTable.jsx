@@ -1,6 +1,6 @@
 import React from 'react'
 
-function ProductTable({productList,handleEditProduct}) {
+function ProductTable({productList,handleEditProduct,setDeleteModal,setProductId}) {
   return (
     <div><table className="w-full whitespace-nowrap overflow-x-auto">
     <thead className="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b border-gray-200 bg-gray-100">
@@ -119,7 +119,9 @@ function ProductTable({productList,handleEditProduct}) {
                  </svg>
              </p>
          </button>
-         <button type="button" className="p-2 cursor-pointer text-gray-400 hover:text-danger focus:outline-none">
+         <button onClick={()=>{
+            setProductId(product._id)
+            setDeleteModal(true)}} type="button" className="p-2 cursor-pointer text-gray-400 hover:text-danger focus:outline-none">
              <p data-tip="true" data-for="delete" className="text-xl">
                  <svg
                      stroke="currentColor"

@@ -329,8 +329,8 @@ function EditproductForm({selectedProduct,handleTabClick,tab,categories,edit,lis
 
                                 <aside className="flex flex-row flex-wrap mt-4">
                                   
-                                   { productImage.length > 0 ? (
-                                      productImage.map(
+                                   { productImage?.length > 0 ? (
+                                      productImage?.map(
                                         (image, index) => (
                                           <div
                                             draggable="true"
@@ -415,9 +415,9 @@ function EditproductForm({selectedProduct,handleTabClick,tab,categories,edit,lis
                                               type="radio"
                                               name="category"
                                               className="mr-2"
-                                              defaultChecked={selectedProduct.mainCategory.categoryName === category.categoryName}
+                                              defaultChecked={selectedProduct?.mainCategory?.categoryName === category?.categoryName}
                                               onChange={() =>
-                                                handleCategoryChange(category._id)
+                                                handleCategoryChange(category?._id)
                                               }
                                             />
                                             <span>{category.categoryName}</span>
@@ -432,9 +432,9 @@ function EditproductForm({selectedProduct,handleTabClick,tab,categories,edit,lis
                                                       name="subCategory"
                                                       type="checkbox"
                                                       className="mr-2 "
-                                                      defaultChecked={selectedProduct.subCategory.includes(subCategory)}
+                                                      defaultChecked={selectedProduct?.subCategory?.includes(subCategory)}
                                                       onChange={() =>
-                                                        handleCategoryChange(category._id,subCategory)
+                                                        handleCategoryChange(category?._id,subCategory)
                                                       }
                                                     />
                                                     <span className="text-black">
@@ -564,7 +564,7 @@ function EditproductForm({selectedProduct,handleTabClick,tab,categories,edit,lis
                                               type="radio"
                                               name="category"
                                               className="mr-2"
-                                              defaultChecked={selectedProduct.taxClass === tax}
+                                              defaultChecked={selectedProduct?.taxClass === tax}
                                               onChange={(e)=>setTaxClass(e.target.value)}
                                                 
                                             />
