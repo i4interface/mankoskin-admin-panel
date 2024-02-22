@@ -23,6 +23,7 @@ function EditproductForm({selectedProduct,handleTabClick,tab,categories,edit,lis
     const [mainCategory,setMainCategory] = useState(selectedProduct.mainCategory)
     const [subCategory,setSubCategory] = useState(selectedProduct.subCategory)
     const [taxClass,setTaxClass] = useState(selectedProduct.taxClass)
+    const [productHSNcode,setProductHSNcode]= useState(selectedProduct.productHSNcode);
 
     
 
@@ -527,6 +528,21 @@ function EditproductForm({selectedProduct,handleTabClick,tab,categories,edit,lis
                             </div>
                           </div>
 
+                          <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
+                            <label className="block text-sm text-gray-800 col-span-4 sm:col-span-2 font-medium ">
+                              Product HSN
+                            </label>
+                            <div className="col-span-8 sm:col-span-4">
+                              <input
+                                className="block w-full h-12 border px-3 py-1 text-sm focus:outline-none  leading-5 rounded-md bg-gray-100 focus:bg-white focus:border-gray-200 border-gray-200 mr-2 p-2"
+                                type="text"
+                                name="productHSNcode"
+                                value={productHSNcode}
+                                onChange={(e)=>setProductHSNcode(e.target.value)}
+                                placeholder="Product HSN"
+                              />
+                            </div>
+                          </div>
                           
                           <div className="grid grid-cols-6 gap-3 md:gap-5 xl:gap-6 lg:gap-6 mb-6">
                             <label className="block text-sm text-gray-800 col-span-4 sm:col-span-2 font-medium">
@@ -549,6 +565,7 @@ function EditproductForm({selectedProduct,handleTabClick,tab,categories,edit,lis
                                               name="category"
                                               className="mr-2"
                                               defaultChecked={selectedProduct.taxClass === tax}
+                                              onChange={(e)=>setTaxClass(e.target.value)}
                                                 
                                             />
                                             <span>{tax}%</span>
