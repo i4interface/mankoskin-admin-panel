@@ -2,7 +2,7 @@ import axios from "axios"
 import Store from "../store/index"
 
 const axiosInstance = axios.create({
-    baseURL: "http://localhost:4000",
+    baseURL: "https://api.mankoskin.com/",
     headers: {
       "Content-Type": "application/json",
     },
