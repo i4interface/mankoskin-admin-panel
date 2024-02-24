@@ -222,7 +222,7 @@ const Basic = () => {
       inputs.productQuantity <= 0 ||
       taxClass <= 0
     ) {
-      toast.error("Please enter valid price or quantit");
+      toast.error("Please enter valid price or quantity");
     } else {
       console.log("herere", selectedCategory, mainCategory);
       axiosInstance
