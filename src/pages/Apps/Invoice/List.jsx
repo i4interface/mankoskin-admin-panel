@@ -249,6 +249,8 @@ const Basic = () => {
       setproducts(res.data.products);
     });
   }, []);
+
+  console.log("products",products)
   return (
     <div>
       <div className="panel mt-6">
